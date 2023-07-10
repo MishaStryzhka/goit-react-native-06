@@ -3,10 +3,10 @@ import { TouchableOpacity, View, StyleSheet } from "react-native";
 const BtnPlus = ({ onPress, color = "#FFFFFF", borderColor = "#FF6C00", style }) => {
     return (
         <>
-            <TouchableOpacity style={{ ...styles.btnAddsImages, backgroundColor: color, borderColor: borderColor, ...style }} onPress={onPress}>
+            <View style={{ ...styles.btnAddsImages, backgroundColor: color, borderColor: borderColor, ...style }} onPress={onPress}>
                 <View style={{ ...styles.icon1, backgroundColor: borderColor, }} />
                 <View style={{ ...styles.icon2, backgroundColor: borderColor, }} />
-            </TouchableOpacity>
+            </View>
         </>
     )
 
@@ -23,13 +23,13 @@ const styles = StyleSheet.create({
         position: "absolute",
         width: 1,
         height: 13,
-        // backgroundColor: "#FF6C00",
+        backgroundColor: "#FF6C00",
     },
     icon2: {
         position: "absolute",
         width: 13,
         height: 1,
-        // backgroundColor: "#FF6C00",
+        backgroundColor: "#FF6C00",
     },
 });
 
