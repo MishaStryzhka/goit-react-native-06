@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { Dimensions, View, Text, StyleSheet, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard, Image, KeyboardAvoidingView, Platform, ScrollView, ImageBackground } from "react-native";
+import {
+    Dimensions,
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    TextInput,
+    TouchableWithoutFeedback,
+    Keyboard,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    ImageBackground,
+} from "react-native";
 
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
-import Geocoder from 'react-native-geocoding';
+import Geocoder from "react-native-geocoding";
 
 import IconRemoveBtn from "../../assets/icon/IconRemoveBtn.svg";
 import IconCamera from "../../assets/icon/iconCamera.svg";
@@ -14,6 +28,11 @@ import IconCameraRotate from "../../assets/icon/iconCameraRotate.svg";
 import IconMapPin from "../../assets/icon/iconMapPin.svg";
 import IconPhotoFolder from "../../assets/icon/iconPhotoFolder.svg";
 import IconBtnBack from "../../assets/icon/iconBtnBack.svg";
+import { db, storage } from "../../firebase/config";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { useSelector } from "react-redux";
+import { nanoid } from "@reduxjs/toolkit";
+import { collection, addDoc } from "firebase/firestore";
 
 let ScreenHeight = Dimensions.get("window").height;
 
@@ -22,30 +41,58 @@ Geocoder.init("AIzaSyBEHgFGpupDVZLrrXJoj74yqYiz9E46zUM");
 const CreatePostsScreen = ({ navigation }) => {
     const [description, setDescription] = useState("");
     const [location, setLocation] = useState("");
-    const [locationCode, setlocationCode] = useState({})
+    const [locationCode, setlocationCode] = useState({});
+    const [urlFoto, setUrlFoto] = useState(null);
 
     const [hasPermission, setHasPermission] = useState(null);
     const [cameraRef, setCameraRef] = useState(null);
     const [type, setType] = useState(Camera.Constants.Type.back);
-    const [photo, setPhoto] = useState(undefined);
+    const [photo, setPhoto] = useState(null);
 
-    const [isDisabledBtnPublish, setIsDisabledBtnPublish] = useState(true)
+    const [isDisabledBtnPublish, setIsDisabledBtnPublish] = useState(true);
+    const user = useSelector((state) => state.auth);
+    // console.log('user', user)
+
+    const uploadPhotoToServer = async () => {
+        const response = await fetch(photo.uri);
+        const file = await response.blob();
+
+        const pathFoto = `avatars/${nanoid()}.jpeg`;
+        const storageRef = ref(storage, pathFoto);
+        await uploadBytes(storageRef, file)
+            .then((snapshot) => {
+                console.log("snapshot", snapshot);
+                console.log("Uploaded a blob or file!");
+            })
+            .catch((error) => {
+                console.log("error", error);
+            });
+
+        await getDownloadURL(ref(storage, pathFoto))
+            .then((url) => {
+                setUrlFoto(url);
+                console.log("url", url);
+            })
+            .catch((error) => {
+                console.log("error", error);
+            });
+    };
 
     useEffect(() => {
         if (description && photo && location) {
-            setIsDisabledBtnPublish(false)
+            setIsDisabledBtnPublish(false);
         }
-    }, [description, location, photo])
-
+    }, [description, location, photo]);
 
     useEffect(() => {
         (async () => {
-            const { status } = await Camera.requestPermissionsAsync();
+            const { status } = await Camera.requestCameraPermissionsAsync();
             await MediaLibrary.requestPermissionsAsync();
 
             setHasPermission(status === "granted");
 
-            let { statusLocation } = await Location.requestPermissionsAsync();
+            let { statusLocation } =
+                await Location.requestForegroundPermissionsAsync();
             if (statusLocation !== "granted") {
                 console.log("Permission to access location was denied");
             }
@@ -60,34 +107,47 @@ const CreatePostsScreen = ({ navigation }) => {
     }
 
     const handlerRemove = () => {
-        navigation.navigate("PostsScreen")
-    }
-    const handlerPublish = () => {
-        const post = { photo, description, location, locationCode }
-        console.log(post)
-        navigation.navigate("PostsScreen", { post })
-    }
+        navigation.navigate("PostsScreen");
+    };
+    const handlerPublish = async () => {
+        // const post = { photo, description, location, locationCode };
+        await uploadPhotoToServer();
+        try {
+            const docRef = await addDoc(collection(db, "posts"), {
+                userID: user.userId,
+                nickName: user.nickName,
+                description,
+                urlFoto,
+                locationName: location,
+                location: locationCode,
+            });
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+
+        navigation.navigate("PostsScreen");
+        setFoto(null);
+        setDescription("");
+
+    };
 
     const saveFoto = async () => {
         if (cameraRef) {
-            getLocationName()
+            getLocationName();
             const options = {
                 quality: 1,
                 base64: true,
                 exif: false,
             };
             const newPhoto = await cameraRef.takePictureAsync(options);
-            console.log(newPhoto)
+            // console.log(newPhoto);
             setPhoto(newPhoto);
-
-            // await MediaLibrary.createAssetAsync(newPhoto.uri);
-
-            getLocationName()
         }
-    }
+    };
 
     const pickImage = async () => {
-        getLocationName()
+        getLocationName();
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -97,8 +157,8 @@ const CreatePostsScreen = ({ navigation }) => {
             quality: 1,
         });
 
-        const { base64, height, uri, width } = result.assets[0]
-        setPhoto({ base64, height, uri, width })
+        const { base64, height, uri, width } = result.assets[0];
+        setPhoto({ base64, height, uri, width });
         console.log(result.assets[0]);
 
         if (!result.canceled) {
@@ -108,19 +168,9 @@ const CreatePostsScreen = ({ navigation }) => {
 
     // Location   =========================
     const getLocationName = async () => {
-        let location = await Location.getCurrentPositionAsync({});
-        const coords = {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-        };
-        setlocationCode(coords);
-
-        let ret = await Geocoder.from(coords)
-
-        setLocation(ret.results[0].formatted_address)
-
-        console.log(ret.results[0].formatted_address)
-    }
+        let ret = await Geocoder.from(user.currentPosition);
+        setLocation(ret.results[0].formatted_address);
+    };
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -137,61 +187,118 @@ const CreatePostsScreen = ({ navigation }) => {
                                     setCameraRef(ref);
                                 }}
                             >
-                                {photo
-                                    ? <><Image
-                                        source={{ uri: 'data:image/jpg;base64,' + photo.base64 }}
-                                        style={styles.preview}
-                                    />
-                                        <TouchableOpacity style={styles.btnBack} onPress={() => setPhoto(undefined)}>
+                                {photo ? (
+                                    <>
+                                        <Image
+                                            source={{
+                                                uri:
+                                                    "data:image/jpg;base64," +
+                                                    photo.base64,
+                                            }}
+                                            style={styles.preview}
+                                        />
+                                        <TouchableOpacity
+                                            style={styles.btnBack}
+                                            onPress={() => setPhoto(undefined)}
+                                        >
                                             <IconBtnBack />
-                                        </TouchableOpacity></>
-                                    : <View style={styles.photoView}>
+                                        </TouchableOpacity>
+                                    </>
+                                ) : (
+                                    <View style={styles.photoView}>
                                         <TouchableOpacity
                                             style={styles.flipContainer}
                                             onPress={() => {
                                                 setType(
-                                                    type === Camera.Constants.Type.back
-                                                        ? Camera.Constants.Type.front
-                                                        : Camera.Constants.Type.back
+                                                    type ===
+                                                        Camera.Constants.Type
+                                                            .back
+                                                        ? Camera.Constants.Type
+                                                              .front
+                                                        : Camera.Constants.Type
+                                                              .back
                                                 );
                                             }}
                                         >
-                                            <IconCameraRotate style={{ width: 24, height: 24, }} />
+                                            <IconCameraRotate
+                                                style={{
+                                                    width: 24,
+                                                    height: 24,
+                                                }}
+                                            />
                                         </TouchableOpacity>
-                                        <TouchableOpacity style={styles.btnPhotoFolder} onPress={() => pickImage()}>
+                                        <TouchableOpacity
+                                            style={styles.btnPhotoFolder}
+                                            onPress={() => pickImage()}
+                                        >
                                             <IconPhotoFolder />
                                         </TouchableOpacity>
-                                        <TouchableOpacity style={styles.btnCamera} onPress={() => saveFoto()}>
+                                        <TouchableOpacity
+                                            style={styles.btnCamera}
+                                            onPress={() => saveFoto()}
+                                        >
                                             <IconCamera />
                                         </TouchableOpacity>
-                                    </View>}
+                                    </View>
+                                )}
                             </Camera>
                         </View>
-                        <Text style={{ ...styles.textUploadPhoto, ...styles.text }}>Загрузите фото</Text>
+                        <Text
+                            style={{
+                                ...styles.textUploadPhoto,
+                                ...styles.text,
+                            }}
+                        >
+                            Загрузите фото
+                        </Text>
                         <TextInput
                             multiline
                             value={description}
                             onChangeText={setDescription}
                             placeholder="Название..."
                             placeholderStyle={styles.text}
-                            style={location ? { ...styles.input } : { ...styles.input, ...styles.text }}
+                            style={
+                                location
+                                    ? { ...styles.input }
+                                    : { ...styles.input, ...styles.text }
+                            }
                             keyboardType="default"
                         />
-                        <View style={{ width: "100%", }}>
+                        <View style={{ width: "100%" }}>
                             <IconMapPin style={styles.iconMap} />
                             <TextInput
                                 multiline
                                 value={location}
                                 onChangeText={setLocation}
                                 placeholder="Местность..."
-                                style={location ? { ...styles.input, paddingStart: 30, } : { ...styles.input, paddingStart: 30, ...styles.text }}
+                                style={
+                                    location
+                                        ? { ...styles.input, paddingStart: 30 }
+                                        : {
+                                              ...styles.input,
+                                              paddingStart: 30,
+                                              ...styles.text,
+                                          }
+                                }
                                 keyboardType="default"
                             />
                         </View>
-                        <TouchableOpacity disabled={isDisabledBtnPublish} style={{ ...styles.btnPublish, backgroundColor: isDisabledBtnPublish ? "#F6F6F6" : "#FF6C00", }} onPress={handlerPublish}>
+                        <TouchableOpacity
+                            disabled={isDisabledBtnPublish}
+                            style={{
+                                ...styles.btnPublish,
+                                backgroundColor: isDisabledBtnPublish
+                                    ? "#F6F6F6"
+                                    : "#FF6C00",
+                            }}
+                            onPress={handlerPublish}
+                        >
                             <Text style={styles.text}>Опубликовать</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.btnRemove} onPress={() => handlerRemove()}>
+                        <TouchableOpacity
+                            style={styles.btnRemove}
+                            onPress={() => handlerRemove()}
+                        >
                             <IconRemoveBtn />
                         </TouchableOpacity>
                     </View>
@@ -199,7 +306,7 @@ const CreatePostsScreen = ({ navigation }) => {
             </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );
-}
+};
 
 const styles = StyleSheet.create({
     text: {
@@ -236,7 +343,6 @@ const styles = StyleSheet.create({
 
         position: "absolute",
         bottom: 34,
-
     },
 
     containerCamera: {
@@ -300,7 +406,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
 
         marginTop: 32,
-
     },
     camera: {
         flex: 1,

@@ -5,6 +5,9 @@ import BtnPlus from "../../component/btnPlus";
 import React, { useState, useEffect } from 'react';
 import { Button, Image, } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { authSignUpUser } from "../../redux/auth/authOperations";
+import { useDispatch } from "react-redux";
+
 
 const RegistrationScreen = ({ navigation }) => {
     const [image, setImage] = useState(null);
@@ -20,6 +23,8 @@ const RegistrationScreen = ({ navigation }) => {
         is: true,
         value: "",
     });
+
+    const dispatch = useDispatch();
 
 
 
@@ -38,26 +43,6 @@ const RegistrationScreen = ({ navigation }) => {
         if (!result.canceled) {
             const { base64, height, uri, width } = result.assets[0]
             setImage({ base64, height, uri, width })
-        }
-    };
-
-    const handlerShow = () => {
-        Alert.alert("Показать");
-    };
-
-    const handlerRegister = () => {
-        if (!name.is) { Alert.alert("Введите логин!"); }
-        else if (!email.is) { Alert.alert("Введите адрес электронной почты") }
-        else if (!password.is) { Alert.alert("Введите пароль") }
-        else if (name.value !== "" && email.value !== "" && password.value !== "") {
-            console.log("name: ", name.value, "   email: ", email.value, "  password; ", password.value)
-            Alert.alert(`Поздравляем ${name.value}! Вы зарегистрированы.`);
-            navigation.navigate('Home', {
-                screen: "PostsScreen",
-                params: { user: { name: name.value, email: email.value, image } }
-            })
-        } else {
-            Alert.alert("Введите ваши данные!!!")
         }
     };
 
@@ -100,6 +85,28 @@ const RegistrationScreen = ({ navigation }) => {
             })
         }
     };
+    const handlerShow = () => {
+        Alert.alert("Показать");
+    };
+
+    const handleSubmit = () => {
+        if (!name.is) { Alert.alert("Введите логин!"); }
+        else if (!email.is) { Alert.alert("Введите адрес электронной почты") }
+        else if (!password.is) { Alert.alert("Введите пароль") }
+        else if (name.value !== "" && email.value !== "" && password.value !== "") {
+            console.log({name: name.value, email: email.value, password: password.value})
+            Alert.alert(`Поздравляем ${name.value}! Вы зарегистрированы.`);
+            dispatch(authSignUpUser({name: name.value, email: email.value, password: password.value}))
+            // navigation.navigate('Home', {
+            //     screen: "PostsScreen",
+            //     params: { user: { name: name.value, email: email.value, image } }
+            // })
+        } else {
+            Alert.alert("Введите ваши данные!!!")
+        }
+    };
+
+
 
     return (
         <TouchableWithoutFeedback onPress={() => {
@@ -148,7 +155,7 @@ const RegistrationScreen = ({ navigation }) => {
                                 </TouchableOpacity>
                             </View>
 
-                            <TouchableOpacity style={styles.btnRegister} onPress={handlerRegister}>
+                            <TouchableOpacity style={styles.btnRegister} onPress={handleSubmit}>
                                 <Text style={styles.btnRegisterText}>Зарегистрироваться</Text>
                             </TouchableOpacity>
 

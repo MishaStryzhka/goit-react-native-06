@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Alert, ImageBackground, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSignInUser } from "../../redux/auth/authOperations";
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState({
@@ -10,25 +12,7 @@ const LoginScreen = ({ navigation }) => {
         is: true,
         value: "",
     });
-
-    const handlerShow = () => {
-        Alert.alert("Показать");
-    };
-
-    const handlerSignIn = () => {
-        if (!email.is) { Alert.alert("Введите адрес электронной почты") }
-        else if (!password.is) { Alert.alert("Введите пароль") }
-        else if (email.value !== "" && password.value !== "") {
-            console.log("email: ", email.value, "  password; ", password.value)
-            Alert.alert(`Поздравляем! \u{1F44C}`);
-            navigation.navigate('Home', {
-                screen: "PostsScreen",
-                params: { user: { name: "Імя фото буде приходити з backend", email: email.value, } }
-            })
-        } else {
-            Alert.alert("Введите ваши данные!!!")
-        }
-    };
+    const dispatch = useDispatch();
 
     const emailHandler = (text) => {
         if (text === "") {
@@ -56,6 +40,27 @@ const LoginScreen = ({ navigation }) => {
             })
         }
     };
+    const handlerShow = () => {
+        Alert.alert("Показать");
+    };
+
+    const hendleSubmit = () => {
+        if (!email.is) { Alert.alert("Введите адрес электронной почты") }
+        else if (!password.is) { Alert.alert("Введите пароль") }
+        else if (email.value !== "" && password.value !== "") {
+            console.log("email: ", email.value, "  password; ", password.value)
+            Alert.alert(`Поздравляем! \u{1F44C}`);
+            dispatch(authSignInUser({ email: email.value, password: password.value}))
+            // navigation.navigate('Home', {
+            //     screen: "PostsScreen",
+            //     params: { user: { name: "Імя фото буде приходити з backend", email: email.value, } }
+            // })
+        } else {
+            Alert.alert("Введите ваши данные!!!")
+        }
+    };
+
+    
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -87,7 +92,7 @@ const LoginScreen = ({ navigation }) => {
                             </TouchableOpacity>
                         </View>
 
-                        <TouchableOpacity style={styles.btnRegister} onPress={handlerSignIn}>
+                        <TouchableOpacity style={styles.btnRegister} onPress={hendleSubmit}>
                             <Text style={styles.btnRegisterText}>Войти</Text>
                         </TouchableOpacity>
 
