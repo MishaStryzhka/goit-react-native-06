@@ -1,12 +1,12 @@
-// import { useState } from "react";
 import { Alert, ImageBackground, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, TouchableWithoutFeedback } from "react-native";
 import BtnPlus from "../../component/btnPlus";
 
 import React, { useState, useEffect } from 'react';
 import { Button, Image, } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { authSignUpUser } from "../../redux/auth/authOperations";
+import { authSignUpUser, updatePhotoURL } from "../../redux/auth/authOperations";
 import { useDispatch } from "react-redux";
+import { auth } from "../../firebase/config";
 
 
 const RegistrationScreen = ({ navigation }) => {
@@ -23,27 +23,17 @@ const RegistrationScreen = ({ navigation }) => {
         is: true,
         value: "",
     });
+    
+
 
     const dispatch = useDispatch();
 
-
-
     const addImages = async () => {
-        // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
-            base64: true,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
         });
-
-        console.log(result);
-
-        if (!result.canceled) {
-            const { base64, height, uri, width } = result.assets[0]
-            setImage({ base64, height, uri, width })
-        }
+        const { height, uri, width } = result.assets[0];
+        setImage(uri)
     };
 
     const nameHandler = (text) => {
@@ -89,18 +79,13 @@ const RegistrationScreen = ({ navigation }) => {
         Alert.alert("Показать");
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!name.is) { Alert.alert("Введите логин!"); }
         else if (!email.is) { Alert.alert("Введите адрес электронной почты") }
         else if (!password.is) { Alert.alert("Введите пароль") }
         else if (name.value !== "" && email.value !== "" && password.value !== "") {
-            console.log({name: name.value, email: email.value, password: password.value})
+            dispatch(authSignUpUser({name: name.value, email: email.value, password: password.value, photoURL: image}))
             Alert.alert(`Поздравляем ${name.value}! Вы зарегистрированы.`);
-            dispatch(authSignUpUser({name: name.value, email: email.value, password: password.value}))
-            // navigation.navigate('Home', {
-            //     screen: "PostsScreen",
-            //     params: { user: { name: name.value, email: email.value, image } }
-            // })
         } else {
             Alert.alert("Введите ваши данные!!!")
         }
@@ -114,12 +99,13 @@ const RegistrationScreen = ({ navigation }) => {
         }}>
             <View style={{ flex: 1, }}>
                 <ImageBackground source={require('../../assets/PhotoBG.png')} style={styles.image}>
-                    <KeyboardAvoidingView // визначаємо ОС та налаштовуємо поведінку клавіатури
-                        behavior={Platform.OS == "ios" ? "padding" : "height"}
+                    <KeyboardAvoidingView 
+                        behavior={Platform.OS == "ios" ? "padding" : 'position'}
+                        keyboardVerticalOffset={Platform.OS == "ios" ? -150 : -500}
                     >
                         <View style={styles.registrationContainer}>
                             <View style={styles.imagesContainer}>
-                                {image && <Image source={{ uri: image.uri }} style={{
+                                {image && <Image source={{ uri: image }} style={{
                                     width: 120,
                                     height: 120,
                                     borderRadius: 16,
@@ -127,18 +113,18 @@ const RegistrationScreen = ({ navigation }) => {
                                 <BtnPlus style={styles.btnPlus} onPress={addImages}></BtnPlus>
                             </View>
 
-                            <Text style={styles.titel}>Регистрация</Text>
+                            <Text style={styles.titel}>Реєстрація</Text>
                             <TextInput
                                 value={name.value}
                                 onChangeText={nameHandler}
-                                placeholder="Логин"
+                                placeholder="Логін"
                                 style={name.is ? styles.input : styles.inputEror}
                                 keyboardType="default"
                             />
                             <TextInput
                                 value={email.value}
                                 onChangeText={emailHandler}
-                                placeholder="Адрес электронной почты"
+                                placeholder="Адреса електронної пошти"
                                 style={email.is ? styles.input : styles.inputEror}
                                 keyboardType="email-address"
                             />
@@ -151,16 +137,16 @@ const RegistrationScreen = ({ navigation }) => {
                                     keyboardType="default"
                                 />
                                 <TouchableOpacity style={styles.btnShow} onPress={handlerShow}>
-                                    <Text>Показать</Text>
+                                    <Text>Показати</Text>
                                 </TouchableOpacity>
                             </View>
 
                             <TouchableOpacity style={styles.btnRegister} onPress={handleSubmit}>
-                                <Text style={styles.btnRegisterText}>Зарегистрироваться</Text>
+                                <Text style={styles.btnRegisterText}>Зареєстуватися</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.btnSignIn} onPress={() => navigation.navigate("LoginScreen")}>
-                                <Text style={styles.btnSignInText}>Уже есть аккаунт? Войти</Text>
+                                <Text style={styles.btnSignInText}>Вже є акаунт? Увійти</Text>
                             </TouchableOpacity>
 
 

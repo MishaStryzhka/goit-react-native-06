@@ -1,5 +1,4 @@
 import React from "react";
-import { moduleName } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import DefaultScreenPosts from "../nestedScreensPosts/DefaultScreenPosts";
 import CommentsScreen from "../nestedScreensPosts/CommentsScreen";
@@ -21,7 +20,7 @@ const PostsScreen = () => {
         <NestedScreen.Navigator>
             <NestedScreen.Screen
                 options={{
-                    title: "Публикации",
+                    title: "Публікації",
                     headerStyle: {
                         height: 88,
                         borderBottomWidth: 1,
@@ -47,10 +46,43 @@ const PostsScreen = () => {
                 component={DefaultScreenPosts}
             />
             <NestedScreen.Screen
+            options={{
+                title: "Коментарі",
+                headerStyle: {
+                    height: 88,
+                    borderBottomWidth: 1,
+                },
+                headerTitleStyle: {
+                    marginBottom: -10,
+                    fontFamily: "Roboto-Medium",
+                    fontSize: 17,
+                    lineHeight: 22,
+                    letterSpacing: -0.408,
+                },
+                headerTitleAlign: "center",
+            }}
                 name="CommentsScreen"
                 component={CommentsScreen}
             />
-            <NestedScreen.Screen name="MapScreen" component={MapScreen} />
+            <NestedScreen.Screen 
+            options={{
+                title: "Карта",
+                headerStyle: {
+                    height: 88,
+                    borderBottomWidth: 1,
+                },
+                headerTitleStyle: {
+                    marginBottom: -10,
+                    fontFamily: "Roboto-Medium",
+                    fontSize: 17,
+                    lineHeight: 22,
+                    letterSpacing: -0.408,
+                },
+                headerTitleAlign: "center",
+            }}
+                name="MapScreen" 
+                component={MapScreen} 
+            />
         </NestedScreen.Navigator>
     );
 };

@@ -5,7 +5,6 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store";
 
 import Main from "./component/Main";
-// import { getCurrentPosition } from "./helpers/getCurrentPosition";
 
 export default function App() {
 

@@ -11,15 +11,12 @@ import {
     Image,
     KeyboardAvoidingView,
     Platform,
-    ScrollView,
-    ImageBackground,
 } from "react-native";
 
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 
 import * as MediaLibrary from "expo-media-library";
-import * as Location from "expo-location";
 import Geocoder from "react-native-geocoding";
 
 import IconRemoveBtn from "../../assets/icon/IconRemoveBtn.svg";
@@ -28,11 +25,9 @@ import IconCameraRotate from "../../assets/icon/iconCameraRotate.svg";
 import IconMapPin from "../../assets/icon/iconMapPin.svg";
 import IconPhotoFolder from "../../assets/icon/iconPhotoFolder.svg";
 import IconBtnBack from "../../assets/icon/iconBtnBack.svg";
-import { db, storage } from "../../firebase/config";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { useSelector } from "react-redux";
-import { nanoid } from "@reduxjs/toolkit";
-import { collection, addDoc } from "firebase/firestore";
+import { useDispatch, useSelector } from "react-redux";
+import { useIsFocused } from "@react-navigation/native";
+import { createPost } from "../../redux/dashboard/posts/postOperations";
 
 let ScreenHeight = Dimensions.get("window").height;
 
@@ -40,9 +35,7 @@ Geocoder.init("AIzaSyBEHgFGpupDVZLrrXJoj74yqYiz9E46zUM");
 
 const CreatePostsScreen = ({ navigation }) => {
     const [description, setDescription] = useState("");
-    const [location, setLocation] = useState("");
-    const [locationCode, setlocationCode] = useState({});
-    const [urlFoto, setUrlFoto] = useState(null);
+    const [locationName, setLocationName] = useState("");
 
     const [hasPermission, setHasPermission] = useState(null);
     const [cameraRef, setCameraRef] = useState(null);
@@ -51,38 +44,24 @@ const CreatePostsScreen = ({ navigation }) => {
 
     const [isDisabledBtnPublish, setIsDisabledBtnPublish] = useState(true);
     const user = useSelector((state) => state.auth);
-    // console.log('user', user)
-
-    const uploadPhotoToServer = async () => {
-        const response = await fetch(photo.uri);
-        const file = await response.blob();
-
-        const pathFoto = `avatars/${nanoid()}.jpeg`;
-        const storageRef = ref(storage, pathFoto);
-        await uploadBytes(storageRef, file)
-            .then((snapshot) => {
-                console.log("snapshot", snapshot);
-                console.log("Uploaded a blob or file!");
-            })
-            .catch((error) => {
-                console.log("error", error);
-            });
-
-        await getDownloadURL(ref(storage, pathFoto))
-            .then((url) => {
-                setUrlFoto(url);
-                console.log("url", url);
-            })
-            .catch((error) => {
-                console.log("error", error);
-            });
-    };
+    const isFocused = useIsFocused();
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        if (description && photo && location) {
+        setPhoto(null);
+        setDescription("");
+        (async () => {
+            const { status } = await Camera.requestCameraPermissionsAsync();
+            await MediaLibrary.requestPermissionsAsync();
+            setHasPermission(status === "granted");
+        })();
+    }, [isFocused]);
+
+    useEffect(() => {
+        if (description && photo) {
             setIsDisabledBtnPublish(false);
         }
-    }, [description, location, photo]);
+    }, [description, locationName, photo]);
 
     useEffect(() => {
         (async () => {
@@ -90,12 +69,6 @@ const CreatePostsScreen = ({ navigation }) => {
             await MediaLibrary.requestPermissionsAsync();
 
             setHasPermission(status === "granted");
-
-            let { statusLocation } =
-                await Location.requestForegroundPermissionsAsync();
-            if (statusLocation !== "granted") {
-                console.log("Permission to access location was denied");
-            }
         })();
     }, []);
 
@@ -106,75 +79,57 @@ const CreatePostsScreen = ({ navigation }) => {
         return <Text>No access to camera</Text>;
     }
 
-    const handlerRemove = () => {
-        navigation.navigate("PostsScreen");
-    };
     const handlerPublish = async () => {
-        // const post = { photo, description, location, locationCode };
-        await uploadPhotoToServer();
-        try {
-            const docRef = await addDoc(collection(db, "posts"), {
-                userID: user.userId,
-                nickName: user.nickName,
-                description,
-                urlFoto,
-                locationName: location,
-                location: locationCode,
-            });
-            console.log("Document written with ID: ", docRef.id);
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
+        const urlPhoto = photo.uri
+
+        dispatch(createPost(urlPhoto, description, locationName, user.currentPosition))
 
         navigation.navigate("PostsScreen");
-        setFoto(null);
+        setPhoto(null);
         setDescription("");
-
     };
+
+    // take a photo ======================
 
     const saveFoto = async () => {
+        getLocationName();
         if (cameraRef) {
-            getLocationName();
-            const options = {
-                quality: 1,
-                base64: true,
-                exif: false,
-            };
-            const newPhoto = await cameraRef.takePictureAsync(options);
-            // console.log(newPhoto);
+            const newPhoto = await cameraRef.takePictureAsync();
             setPhoto(newPhoto);
         }
     };
 
+    // selected photo ====================
+
     const pickImage = async () => {
         getLocationName();
-        // No permissions request is necessary for launching the image library
+
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
-            base64: true,
             allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
         });
 
-        const { base64, height, uri, width } = result.assets[0];
-        setPhoto({ base64, height, uri, width });
-        console.log(result.assets[0]);
-
-        if (!result.canceled) {
-            // setImage(result.assets[0].uri);
-        }
+        const { height, uri, width } = result.assets[0];
+        const newPhoto = { height, uri, width }
+        setPhoto(newPhoto);
     };
 
     // Location   =========================
     const getLocationName = async () => {
         let ret = await Geocoder.from(user.currentPosition);
-        setLocation(ret.results[0].formatted_address);
+        setLocationName(ret.results[0].formatted_address);
+    };
+
+    // Exit    =============================
+    const handlerRemove = () => {
+        navigation.navigate("PostsScreen");
+        setPhoto(null);
+        setDescription("");
     };
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <KeyboardAvoidingView // визначаємо ОС та налаштовуємо поведінку клавіатури
+            <KeyboardAvoidingView
                 behavior={Platform.OS == "ios" ? "padding" : "height"}
             >
                 <View resizeMode="cover" style={styles.image}>
@@ -191,18 +146,10 @@ const CreatePostsScreen = ({ navigation }) => {
                                     <>
                                         <Image
                                             source={{
-                                                uri:
-                                                    "data:image/jpg;base64," +
-                                                    photo.base64,
+                                                uri: photo.uri,
                                             }}
                                             style={styles.preview}
                                         />
-                                        <TouchableOpacity
-                                            style={styles.btnBack}
-                                            onPress={() => setPhoto(undefined)}
-                                        >
-                                            <IconBtnBack />
-                                        </TouchableOpacity>
                                     </>
                                 ) : (
                                     <View style={styles.photoView}>
@@ -243,22 +190,24 @@ const CreatePostsScreen = ({ navigation }) => {
                                 )}
                             </Camera>
                         </View>
-                        <Text
-                            style={{
-                                ...styles.textUploadPhoto,
-                                ...styles.text,
-                            }}
-                        >
-                            Загрузите фото
-                        </Text>
+                        {photo && (
+                            <TouchableOpacity
+                                style={styles.btnBack}
+                                onPress={() => {
+                                    setPhoto(null)
+                                }}
+                            >
+                                <IconBtnBack />
+                            </TouchableOpacity>
+                        )}
                         <TextInput
                             multiline
                             value={description}
                             onChangeText={setDescription}
-                            placeholder="Название..."
+                            placeholder="Назва..."
                             placeholderStyle={styles.text}
                             style={
-                                location
+                                locationName
                                     ? { ...styles.input }
                                     : { ...styles.input, ...styles.text }
                             }
@@ -268,11 +217,11 @@ const CreatePostsScreen = ({ navigation }) => {
                             <IconMapPin style={styles.iconMap} />
                             <TextInput
                                 multiline
-                                value={location}
-                                onChangeText={setLocation}
-                                placeholder="Местность..."
+                                value={locationName}
+                                onChangeText={setLocationName}
+                                placeholder="Місцевість..."
                                 style={
-                                    location
+                                    locationName
                                         ? { ...styles.input, paddingStart: 30 }
                                         : {
                                               ...styles.input,
@@ -293,7 +242,7 @@ const CreatePostsScreen = ({ navigation }) => {
                             }}
                             onPress={handlerPublish}
                         >
-                            <Text style={styles.text}>Опубликовать</Text>
+                            <Text style={styles.text}>Опубліковати</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.btnRemove}
@@ -366,8 +315,8 @@ const styles = StyleSheet.create({
 
     btnBack: {
         position: "absolute",
-        top: 10,
-        left: 10,
+        top: 40,
+        left: 30,
     },
 
     btnCamera: {

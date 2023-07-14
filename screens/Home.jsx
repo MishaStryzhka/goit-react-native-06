@@ -9,13 +9,11 @@ import CreatePostsScreen from "./mainScreens/CreatePostsScreen";
 import PostsScreen from "./mainScreens/PostsScreen";
 import ProfileScreen from "./mainScreens/ProfileScreen";
 import BtnPlus from "../component/btnPlus";
-import { useDispatch } from "react-redux";
-import { authSignOutUser } from "../redux/auth/authOperations";
+import { authSignOutUser} from "../redux/auth/authOperations";
 
 const Tabs = createBottomTabNavigator();
 
-const Home = ({ navigation }) => {
-    const dispatch = useDispatch();
+const Home = () => {
     
     const handleSignOut = () => {
         dispatch(authSignOutUser())
@@ -28,30 +26,31 @@ const Home = ({ navigation }) => {
                     height: 80,
                     borderTopWidth: 1,
                 },
-            }}>
+            }}
+            >
             <Tabs.Screen
                 options={{
-                    // title: "Публикации",
-                    // headerStyle: {
-                    //     height: 88,
-                    //     borderBottomWidth: 1,
-                    // },
-                    // headerTitleStyle: {
-                    //     marginBottom: -10,
-                    //     fontFamily: "Roboto-Medium",
-                    //     fontSize: 17,
-                    //     lineHeight: 22,
-                    //     letterSpacing: -0.408,
-                    // },
-                    // headerTitleAlign: "center",
-                    // headerRight: () => (
-                    //     <TouchableOpacity onPress={handleSignOut}>
-                    //         <IconlogOut width={24} height={24} />
-                    //     </TouchableOpacity>
-                    // ),
-                    // headerRightContainerStyle: {
-                    //     right: 16,
-                    // },
+                    title: "Публикации",
+                    headerStyle: {
+                        height: 88,
+                        borderBottomWidth: 1,
+                    },
+                    headerTitleStyle: {
+                        marginBottom: -10,
+                        fontFamily: "Roboto-Medium",
+                        fontSize: 17,
+                        lineHeight: 22,
+                        letterSpacing: -0.408,
+                    },
+                    headerTitleAlign: "center",
+                    headerRight: () => (
+                        <TouchableOpacity onPress={handleSignOut}>
+                            <IconlogOut width={24} height={24} />
+                        </TouchableOpacity>
+                    ),
+                    headerRightContainerStyle: {
+                        right: 16,
+                    },
                     headerShown: false,
                     tabBarIcon: ({ focused, size, color }) => (
                         // <TouchableOpacity onPress={() => navigation.navigate("PostsScreen")}>
@@ -65,11 +64,14 @@ const Home = ({ navigation }) => {
             <Tabs.Screen
                 options={{
                     tabBarIcon: ({ focused, size, color }) => (
-                        <BtnPlus style={styles.btnPlus} color={"#FF6C00"} borderColor={"#FFFFFF"} />
+                        <BtnPlus disabled={true} style={styles.btnPlus} color={"#FF6C00"} borderColor={"#FFFFFF"} />
                     ),
-                    headerShown: false,
+                    tabBarStyle:{
+                        display: "none",
+                      },
+                    // headerShown: false,
                 }}
-                name="CreatePostsScreen"
+                name="Створити публікацію"
                 component={CreatePostsScreen} />
             <Tabs.Screen
                 options={{

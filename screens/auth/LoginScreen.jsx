@@ -48,13 +48,8 @@ const LoginScreen = ({ navigation }) => {
         if (!email.is) { Alert.alert("Введите адрес электронной почты") }
         else if (!password.is) { Alert.alert("Введите пароль") }
         else if (email.value !== "" && password.value !== "") {
-            console.log("email: ", email.value, "  password; ", password.value)
-            Alert.alert(`Поздравляем! \u{1F44C}`);
             dispatch(authSignInUser({ email: email.value, password: password.value}))
-            // navigation.navigate('Home', {
-            //     screen: "PostsScreen",
-            //     params: { user: { name: "Імя фото буде приходити з backend", email: email.value, } }
-            // })
+            Alert.alert(`Поздравляем! \u{1F44C}`);
         } else {
             Alert.alert("Введите ваши данные!!!")
         }
@@ -64,18 +59,18 @@ const LoginScreen = ({ navigation }) => {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            {/* <View> */}
-            <KeyboardAvoidingView // визначаємо ОС та налаштовуємо поведінку клавіатури
+            <KeyboardAvoidingView 
                 behavior={Platform.OS == "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={Platform.OS == "ios" ? -230 : -500}
             >
                 <ImageBackground source={require('../../assets/PhotoBG.png')} resizeMode="cover" style={styles.image}>
                     <View style={styles.registrationContainer}>
 
-                        <Text style={styles.titel}>Войти</Text>
+                        <Text style={styles.titel}>Увійти</Text>
                         <TextInput
                             value={email.value}
                             onChangeText={emailHandler}
-                            placeholder="Адрес электронной почты"
+                            placeholder="Адреса електронної пошти"
                             style={email.is ? styles.input : styles.inputEror}
                             keyboardType="email-address"
                         />
@@ -88,23 +83,22 @@ const LoginScreen = ({ navigation }) => {
                                 keyboardType="default"
                             />
                             <TouchableOpacity style={styles.btnShow} onPress={handlerShow}>
-                                <Text>Показать</Text>
+                                <Text>Показати</Text>
                             </TouchableOpacity>
                         </View>
 
                         <TouchableOpacity style={styles.btnRegister} onPress={hendleSubmit}>
-                            <Text style={styles.btnRegisterText}>Войти</Text>
+                            <Text style={styles.btnRegisterText}>Увійти</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.btnSignIn} onPress={() => navigation.navigate("RegistrationScreen")}>
-                            <Text style={styles.btnSignInText}>Нет аккаунта? Зарегистрироваться</Text>
+                            <Text style={styles.btnSignInText}>Немає акаунту? Зареєструватися</Text>
                         </TouchableOpacity>
 
 
                     </View>
                 </ImageBackground>
             </KeyboardAvoidingView>
-            {/* </View> */}
         </TouchableWithoutFeedback>
     );
 }
