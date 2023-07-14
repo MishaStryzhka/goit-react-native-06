@@ -53,9 +53,7 @@ const Home = () => {
                     },
                     headerShown: false,
                     tabBarIcon: ({ focused, size, color }) => (
-                        // <TouchableOpacity onPress={() => navigation.navigate("PostsScreen")}>
                             <IconPosts width={24} height={24} />
-                        // </TouchableOpacity>
                     ),
 
                 }}
@@ -69,16 +67,13 @@ const Home = () => {
                     tabBarStyle:{
                         display: "none",
                       },
-                    // headerShown: false,
                 }}
                 name="Створити публікацію"
                 component={CreatePostsScreen} />
             <Tabs.Screen
                 options={{
                     tabBarIcon: ({ focused, size, color }) => (
-                        // <TouchableOpacity onPress={() => navigation.navigate("ProfileScreen")}>
                             <IconUser width={24} height={24} />
-                        // </TouchableOpacity>
                     ),
                     headerShown: false,
                 }}

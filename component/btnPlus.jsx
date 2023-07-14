@@ -1,16 +1,28 @@
 import { TouchableOpacity, View, StyleSheet } from "react-native";
 
-const BtnPlus = ({ onPress, disabled=false, color = "#FFFFFF", borderColor = "#FF6C00", style }) => {
+const BtnPlus = ({ onPress, disabled = false, color = "#FFFFFF", borderColor = "#FF6C00", style, }) => {
     return (
         <>
-            <TouchableOpacity disabled={disabled} style={{ ...styles.btnAddsImages, backgroundColor: color, borderColor: borderColor, ...style }} onPress={onPress}>
-                <View style={{ ...styles.icon1, backgroundColor: borderColor, }} />
-                <View style={{ ...styles.icon2, backgroundColor: borderColor, }} />
+            <TouchableOpacity
+                disabled={disabled}
+                style={{
+                    ...styles.btnAddsImages,
+                    backgroundColor: color,
+                    borderColor: borderColor,
+                    ...style,
+                }}
+                onPress={onPress}
+            >
+                <View
+                    style={{ ...styles.icon1, backgroundColor: borderColor }}
+                />
+                <View
+                    style={{ ...styles.icon2, backgroundColor: borderColor }}
+                />
             </TouchableOpacity>
         </>
-    )
-
-}
+    );
+};
 
 const styles = StyleSheet.create({
     btnAddsImages: {

@@ -23,6 +23,8 @@ const RegistrationScreen = ({ navigation }) => {
         is: true,
         value: "",
     });
+
+    const [showPasword, setShowPasword] = useState(false)
     
 
 
@@ -76,7 +78,7 @@ const RegistrationScreen = ({ navigation }) => {
         }
     };
     const handlerShow = () => {
-        Alert.alert("Показать");
+        setShowPasword(!showPasword)
     };
 
     const handleSubmit = async () => {
@@ -132,6 +134,7 @@ const RegistrationScreen = ({ navigation }) => {
                                 <TextInput
                                     value={password.value}
                                     onChangeText={passwordHandler}
+                                    secureTextEntry={!showPasword}
                                     placeholder="Пароль"
                                     style={password.is ? styles.input : styles.inputEror}
                                     keyboardType="default"

@@ -12,6 +12,7 @@ const LoginScreen = ({ navigation }) => {
         is: true,
         value: "",
     });
+    const [showPasword, setShowPasword] = useState(false)
     const dispatch = useDispatch();
 
     const emailHandler = (text) => {
@@ -41,7 +42,7 @@ const LoginScreen = ({ navigation }) => {
         }
     };
     const handlerShow = () => {
-        Alert.alert("Показать");
+        setShowPasword(!showPasword)
     };
 
     const hendleSubmit = () => {
@@ -78,6 +79,7 @@ const LoginScreen = ({ navigation }) => {
                             <TextInput
                                 value={password.value}
                                 onChangeText={passwordHandler}
+                                secureTextEntry={!showPasword}
                                 placeholder="Пароль"
                                 style={password.is ? styles.input : styles.inputEror}
                                 keyboardType="default"
