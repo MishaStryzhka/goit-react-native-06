@@ -61,7 +61,6 @@ const CommentsScreen = ({ route }) => {
         const cityRef = doc(db, "posts", `${post.id}`);
         setDoc(cityRef, { ...post, quantityComent: commentsList.length + 1});
 
-        // console.log("QWE");
         getAllComments();
         setComment("");
     };
@@ -69,7 +68,7 @@ const CommentsScreen = ({ route }) => {
     return (
         <KeyboardAvoidingView
             behavior={"height"}
-            keyboardVerticalOffset={Platform.OS == "ios" ? 90 : 160}
+            keyboardVerticalOffset={Platform.OS == "ios" ? 70 : 70}
         >
             <View style={styles.container}>
                 <ScrollView
@@ -189,6 +188,7 @@ const styles = StyleSheet.create({
         width: "100%",
         alignContent: "center",
         justifyContent: "center",
+        marginBottom: 30,
     },
     input: {
         height: 50,
@@ -197,7 +197,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         backgroundColor: "#F6F6F6",
         borderColor: "#E8E8E8",
-        marginBottom: 10,
         marginLeft: 16,
         marginRight: 16,
         borderRadius: 28,
@@ -208,7 +207,6 @@ const styles = StyleSheet.create({
         padding: 1,
         borderWidth: 1,
         borderColor: "transparent",
-        marginBottom: 10,
         marginRight: 16,
         borderRadius: 28,
     },
