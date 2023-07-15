@@ -1,33 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { Button, Image, View, Platform, Text } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { TouchableWithoutFeedback } from "react-native";
 import { ImageBackground } from "react-native";
-import { KeyboardAvoidingView } from "react-native";
 import BtnPlus from "../../component/btnPlus";
-import { TextInput } from "react-native";
 import { StyleSheet } from "react-native";
-import { Keyboard } from "react-native";
 import { ScrollView } from "react-native";
-import { Dimensions } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { auth, storage } from "../../firebase/config";
-import { updateProfile } from "firebase/auth";
 import { updatePhotoURL } from "../../redux/auth/authOperations";
 import { getUserPosts } from "../../redux/dashboard/posts/postOperations";
 import dateFormat from "dateformat";
 import { TouchableOpacity } from "react-native";
 
-import IconMapPin from "../../assets/icon/iconMapPin.svg";
-import IconComments from "../../assets/icon/iconComments.svg";
-import IconLike from "../../assets/icon/iconLike.svg";
+import IconMapPin from "../../assets/icon/iconMapPin";
+import IconComments from "../../assets/icon/iconComments";
+import IconLike from "../../assets/icon/iconLike";
 
-const ProfileScreen = () => {
+import doubleClick from "../../helpers/doubleClick";
+import togglLike from "../../helpers/togglLike";
+import { useIsFocused } from "@react-navigation/native";
+
+const ProfileScreen = ({navigation}) => {
     const user = useSelector((state) => state.auth);
-    const userPosts = useSelector((state) => state.post.userPosts);
-    console.log("user.photoURL", user.photoURL);
+    const userPosts = useSelector((state) => state.post.userPosts || [] );
+    const isFocused = useIsFocused();
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(getUserPosts(user.userId));
+    }, [isFocused]);
 
     useEffect(() => {
         dispatch(getUserPosts(user.userId));
@@ -41,6 +41,11 @@ const ProfileScreen = () => {
         const { height, uri, width } = result.assets[0];
         console.log("uri", uri);
         dispatch(updatePhotoURL(uri));
+    };
+
+    const handleLike = async (post) => {
+        togglLike(post, user)
+        dispatch(getUserPosts(user.userId));
     };
 
     return (
@@ -59,7 +64,7 @@ const ProfileScreen = () => {
                     <View style={styles.imagesContainer}>
                         {user.photoURL && (
                             <Image
-                                source={{uri: user.photoURL}}
+                                source={{ uri: user.photoURL }}
                                 style={{
                                     width: 120,
                                     height: 120,
@@ -88,7 +93,7 @@ const ProfileScreen = () => {
                     >
                         {user.nickName}
                     </Text>
-                    {userPosts &&
+                    {userPosts.length !== 0 &&
                         [...userPosts]
                             .sort(
                                 (firstPost, secondPost) =>
@@ -254,7 +259,9 @@ const ProfileScreen = () => {
                                         </View>
                                     </View>
                                 );
-                            })}
+                            })
+                            }
+                    {userPosts.length === 0 && <Text style={{textAlign: "center", fontSize: 20}}>У вас ще немає жодного поста. 😔</Text>}
                 </View>
             </ScrollView>
         </View>
@@ -267,6 +274,7 @@ const styles = StyleSheet.create({
     registrationContainer: {
         top: -1285,
         padding: 8,
+        minHeight: 810,
         // height: 500,
         width: "100%",
         borderTopLeftRadius: 25,

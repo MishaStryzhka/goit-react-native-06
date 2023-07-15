@@ -102,8 +102,8 @@ const RegistrationScreen = ({ navigation }) => {
             <View style={{ flex: 1, }}>
                 <ImageBackground source={require('../../assets/PhotoBG.png')} style={styles.image}>
                     <KeyboardAvoidingView 
-                        behavior={Platform.OS == "ios" ? "padding" : 'position'}
-                        keyboardVerticalOffset={Platform.OS == "ios" ? -150 : -500}
+                        behavior={Platform.OS == "ios" ? "padding" : "height"}
+                        keyboardVerticalOffset={Platform.OS == "ios" ? -150 : -180}
                     >
                         <View style={styles.registrationContainer}>
                             <View style={styles.imagesContainer}>

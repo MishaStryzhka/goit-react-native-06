@@ -1,23 +1,26 @@
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-import IconPosts from "../assets/icon/iconPosts.svg";
-import IconUser from "../assets/icon/iconUser.svg";
-import IconlogOut from "../assets/icon/iconlogOut.svg";
+import IconPosts from "../assets/icon/iconPosts";
+import IconUser from "../assets/icon/iconUser";
+import IconlogOut from "../assets/icon/iconlogOut";
+
 
 import CreatePostsScreen from "./mainScreens/CreatePostsScreen";
 import PostsScreen from "./mainScreens/PostsScreen";
 import ProfileScreen from "./mainScreens/ProfileScreen";
 import BtnPlus from "../component/btnPlus";
-import { authSignOutUser} from "../redux/auth/authOperations";
+import { authSignOutUser } from "../redux/auth/authOperations";
+import { useDispatch } from "react-redux";
 
 const Tabs = createBottomTabNavigator();
 
 const Home = () => {
-    
+    const dispatch = useDispatch();
+
     const handleSignOut = () => {
-        dispatch(authSignOutUser())
-    }
+        dispatch(authSignOutUser());
+    };
     return (
         <Tabs.Navigator
             screenOptions={{
@@ -27,10 +30,10 @@ const Home = () => {
                     borderTopWidth: 1,
                 },
             }}
-            >
+        >
             <Tabs.Screen
                 options={{
-                    title: "Публикации",
+                    title: "Публікації",
                     headerStyle: {
                         height: 88,
                         borderBottomWidth: 1,
@@ -51,34 +54,40 @@ const Home = () => {
                     headerRightContainerStyle: {
                         right: 16,
                     },
-                    headerShown: false,
                     tabBarIcon: ({ focused, size, color }) => (
-                            <IconPosts width={24} height={24} />
+                        <IconPosts width={24} height={24} />
                     ),
-
                 }}
                 name="PostsScreen"
-                component={PostsScreen} />
+                component={PostsScreen}
+            />
             <Tabs.Screen
                 options={{
                     tabBarIcon: ({ focused, size, color }) => (
-                        <BtnPlus disabled={true} style={styles.btnPlus} color={"#FF6C00"} borderColor={"#FFFFFF"} />
+                        <BtnPlus
+                            disabled={true}
+                            style={styles.btnPlus}
+                            color={"#FF6C00"}
+                            borderColor={"#FFFFFF"}
+                        />
                     ),
-                    tabBarStyle:{
+                    tabBarStyle: {
                         display: "none",
-                      },
+                    },
                 }}
                 name="Створити публікацію"
-                component={CreatePostsScreen} />
+                component={CreatePostsScreen}
+            />
             <Tabs.Screen
                 options={{
                     tabBarIcon: ({ focused, size, color }) => (
-                            <IconUser width={24} height={24} />
+                        <IconUser width={24} height={24} />
                     ),
                     headerShown: false,
                 }}
                 name="ProfileScreen"
-                component={ProfileScreen} />
+                component={ProfileScreen}
+            />
         </Tabs.Navigator>
     );
 };

@@ -62,7 +62,7 @@ const LoginScreen = ({ navigation }) => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView 
                 behavior={Platform.OS == "ios" ? "padding" : "height"}
-                keyboardVerticalOffset={Platform.OS == "ios" ? -230 : -500}
+                keyboardVerticalOffset={Platform.OS == "ios" ? -230 : -220}
             >
                 <ImageBackground source={require('../../assets/PhotoBG.png')} resizeMode="cover" style={styles.image}>
                     <View style={styles.registrationContainer}>

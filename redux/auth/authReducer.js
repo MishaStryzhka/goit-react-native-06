@@ -6,6 +6,7 @@ const state = {
     stateChande: false,
     currentPosition: null,
     photoURL: null,
+    error: null,
 };
 
 export const authSlice = createSlice({

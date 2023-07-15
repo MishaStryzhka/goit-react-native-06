@@ -19,12 +19,12 @@ import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import Geocoder from "react-native-geocoding";
 
-import IconRemoveBtn from "../../assets/icon/IconRemoveBtn.svg";
-import IconCamera from "../../assets/icon/iconCamera.svg";
-import IconCameraRotate from "../../assets/icon/iconCameraRotate.svg";
-import IconMapPin from "../../assets/icon/iconMapPin.svg";
-import IconPhotoFolder from "../../assets/icon/iconPhotoFolder.svg";
-import IconBtnBack from "../../assets/icon/iconBtnBack.svg";
+import IconRemoveBtn from "../../assets/icon/IconRemoveBtn";
+import IconCamera from "../../assets/icon/iconCamera";
+import IconCameraRotate from "../../assets/icon/iconCameraRotate";
+import IconMapPin from "../../assets/icon/iconMapPin";
+import IconPhotoFolder from "../../assets/icon/iconPhotoFolder";
+import IconBtnBack from "../../assets/icon/iconBtnBack";
 import { useDispatch, useSelector } from "react-redux";
 import { useIsFocused } from "@react-navigation/native";
 import { createPost } from "../../redux/dashboard/posts/postOperations";
