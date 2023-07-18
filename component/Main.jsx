@@ -6,8 +6,7 @@ import { authStateChangeUser } from "../redux/auth/authOperations";
 import { getCurrentPosition } from "../helpers/getCurrentPosition";
 
 const Main = () => {
-    const { stateChande } = useSelector((state) => state.auth);
-    const state = useSelector((state) => state);
+    const stateChande = useSelector((state) => state.auth.stateChande);
     const routing = useRoute(stateChande);
 
     const dispatch = useDispatch();

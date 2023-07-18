@@ -5,7 +5,6 @@ import IconPosts from "../assets/icon/iconPosts";
 import IconUser from "../assets/icon/iconUser";
 import IconlogOut from "../assets/icon/iconlogOut";
 
-
 import CreatePostsScreen from "./mainScreens/CreatePostsScreen";
 import PostsScreen from "./mainScreens/PostsScreen";
 import ProfileScreen from "./mainScreens/ProfileScreen";
