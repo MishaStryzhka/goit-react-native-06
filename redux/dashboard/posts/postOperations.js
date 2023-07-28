@@ -1,10 +1,21 @@
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import {
+    addDoc,
+    collection,
+    doc,
+    getDocs,
+    onSnapshot,
+    query,
+    where,
+} from "firebase/firestore";
 import { postSlice } from "./postRedusers";
 import { auth, db, storage } from "../../../firebase/config";
 import { nanoid } from "@reduxjs/toolkit";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export const getAllPosts = () => async (dispatch, getState) => {
+    // const unsub = onSnapshot(doc(db, "posts"), (doc) => {
+    //     console.log("Current data: ", doc);
+    // });
     const querySnapshot = await getDocs(collection(db, "posts"));
     const postsAll = [];
     querySnapshot.forEach((doc) => {
@@ -56,10 +67,7 @@ export const createPost =
     };
 
 export const getUserPosts = (userID) => async (dispatch, getState) => {
-    const q = query(
-        collection(db, "posts"),
-        where("userID", "==", userID)
-    );
+    const q = query(collection(db, "posts"), where("userID", "==", userID));
     const querySnapshot = await getDocs(q);
     const userPosts = [];
     querySnapshot.forEach((doc) => {

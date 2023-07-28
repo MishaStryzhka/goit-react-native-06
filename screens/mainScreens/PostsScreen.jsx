@@ -24,13 +24,14 @@ const PostsScreen = ({ navigation }) => {
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        dispatch(getAllPosts());
-    }, [isFocused]);
+    // console.log("postsAll", postsAll);
+    // useEffect(() => {
+    //     dispatch(getAllPosts());
+    // }, [isFocused]);
 
     useEffect(() => {
-        getAllPosts();
-    }, [postsAll]);
+        dispatch(getAllPosts());
+    }, []);
 
     const handleLike = async (post) => {
         togglLike(post, user);

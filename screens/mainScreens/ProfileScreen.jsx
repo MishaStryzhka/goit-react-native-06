@@ -25,9 +25,9 @@ const ProfileScreen = ({ navigation }) => {
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        dispatch(getUserPosts(user.userId));
-    }, [isFocused]);
+    // useEffect(() => {
+    //     dispatch(getUserPosts(user.userId));
+    // }, [isFocused]);
 
     useEffect(() => {
         dispatch(getUserPosts(user.userId));
