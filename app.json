@@ -20,8 +20,7 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
         "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
-      },
-      "bundleIdentifier": "com.misha.strizhcko.socialsite"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +33,7 @@
         "android.permission.ACCESS_MEDIA_LOCATION",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.misha.strizhcko.socialsite"
+      "package": "com.misha.strizhcko.toppost"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -57,15 +56,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "6adfef85-85a4-44e0-ac8c-011780506be0"
+        "projectId": "0841306e-f842-46f9-8947-acf8b32ddad4"
       }
     },
-    "owner": "misha.strizhcko",
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/d47d8bb3-f6b5-4051-a906-f27be69f5a13"
-    }
+    "owner": "misha.strizhcko"
   }
 }

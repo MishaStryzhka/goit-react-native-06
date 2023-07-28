@@ -7,9 +7,9 @@ import { store } from "./redux/store";
 import Main from "./component/Main";
 import { NativeModules } from "react-native";
 
-if (__DEV__) {
-    NativeModules.DevSettings.setIsDebuggingRemotely(true);
-}
+// if (__DEV__) {
+//     NativeModules.DevSettings.setIsDebuggingRemotely(true);
+// }
 
 export default function App() {
     const [loadFonts] = useFonts({

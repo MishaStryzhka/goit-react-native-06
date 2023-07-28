@@ -19,9 +19,9 @@ import doubleClick from "../../helpers/doubleClick";
 import togglLike from "../../helpers/togglLike";
 import { useIsFocused } from "@react-navigation/native";
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
     const user = useSelector((state) => state.auth);
-    const userPosts = useSelector((state) => state.post.userPosts || [] );
+    const userPosts = useSelector((state) => state.post.userPosts || []);
     const isFocused = useIsFocused();
     const dispatch = useDispatch();
 
@@ -44,7 +44,7 @@ const ProfileScreen = ({navigation}) => {
     };
 
     const handleLike = async (post) => {
-        togglLike(post, user)
+        togglLike(post, user);
         dispatch(getUserPosts(user.userId));
     };
 
@@ -52,7 +52,7 @@ const ProfileScreen = ({navigation}) => {
         <View style={{ flex: 1 }}>
             <ScrollView
                 style={{
-                    marginBottom: -1285,
+                    marginBottom: -1295,
                 }}
                 contentContainerStyle={{}}
             >
@@ -259,9 +259,12 @@ const ProfileScreen = ({navigation}) => {
                                         </View>
                                     </View>
                                 );
-                            })
-                            }
-                    {userPosts.length === 0 && <Text style={{textAlign: "center", fontSize: 20}}>У вас ще немає жодного поста. 😔</Text>}
+                            })}
+                    {userPosts.length === 0 && (
+                        <Text style={{ textAlign: "center", fontSize: 20 }}>
+                            У вас ще немає жодного поста. 😔
+                        </Text>
+                    )}
                 </View>
             </ScrollView>
         </View>
